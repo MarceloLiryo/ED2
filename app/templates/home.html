@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}GlobalSIM - Cobertura Internacional por eSIM{% endblock %}
+
+{% block content %}
+<section class="hero-banner">
+    <div>
+        <h1>Conectividade Internacional por eSIM</h1>
+        <p>Consulte em tempo real os países atendidos pela GlobalSIM utilizando busca direta em <strong>Tabela Hash</strong>.</p>
+    </div>
+    <div class="hero-stats">
+        <div class="stat-box">
+            <span class="stat-value">{{ metrics.size }}</span>
+            <span class="stat-label">Países Ativos</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-value">{{ metrics.load_factor }}</span>
+            <span class="stat-label">Fator de Carga (α)</span>
+        </div>
+    </div>
+</section>
+
+<div class="grid-2col">
+    <!-- Consulta de Cobertura por Código (Requisito Obrigatório Etapa 1) -->
+    <section class="card">
+        <h2>Verificar Cobertura por País</h2>
+        <p class="text-muted">Informe o código ISO de 2 letras (ex: BR, IT, PT, US, JP) para buscar na Tabela Hash.</p>
+
+        <form action="{{ url_for('home.index') }}" method="GET" class="inline-form">
+            <input
+                type="text"
+                name="codigo"
+                value="{{ query_code }}"
+                placeholder="Ex: IT"
+                maxlength="3"
+                class="input-field input-code"
+                required
+            >
+            <button type="submit" class="btn btn-primary">Verificar cobertura</button>
+            {% if search_performed %}
+                <a href="{{ url_for('home.index') }}" class="btn btn-outline">Limpar</a>
+            {% endif %}
+        </form>
+
+        {% if search_performed %}
+            {% if coverage_result %}
+                <div class="result-box result-success">
+                    <div class="result-header">
+                        <span class="status-pill status-ok">COBERTURA DISPONÍVEL</span>
+                        <span class="metric-tag">Comparações na Hash: {{ search_comparisons }}</span>
+                    </div>
+                    <ul class="result-list">
+                        <li><strong>Código:</strong> {{ coverage_result.code }}</li>
+                        <li><strong>País:</strong> {{ coverage_result.country }}</li>
+                        <li><strong>Região:</strong> {{ coverage_result.region }}</li>
+                        <li><strong>Operadora:</strong> {{ coverage_result.provider }}</li>
+                        <li><strong>Tecnologia:</strong> <span class="tech-badge">{{ coverage_result.tech }}</span></li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="result-box result-error">
+                    <div class="result-header">
+                        <span class="status-pill status-fail">SEM COBERTURA</span>
+                        <span class="metric-tag">Comparações na Hash: {{ search_comparisons }}</span>
+                    </div>
+                    <p>O código <strong>"{{ query_code }}"</strong> não foi encontrado na Tabela Hash da GlobalSIM.</p>
+                </div>
+            {% endif %}
+        {% endif %}
+    </section>
+
+    <!-- Diferencial da Equipe: Recomendação de Pacote por Roteiro -->
+    <section class="card">
+        <div class="card-title-row">
+            <h2>Planejador de Roteiro & Pacote</h2>
+            <span class="badge-diff">Diferencial</span>
+        </div>
+        <p class="text-muted">Digite os códigos dos países da sua viagem separados por vírgula para verificar cobertura múltipla e o pacote ideal.</p>
+
+        <form action="{{ url_for('home.index') }}" method="GET" class="inline-form">
+            <input
+                type="text"
+                name="roteiro"
+                value="{{ itinerary_raw }}"
+                placeholder="Ex: PT, ES, FR, IT"
+                class="input-field"
+                required
+            >
+            <button type="submit" class="btn btn-primary">Recomendar Pacote</button>
+        </form>
+
+        {% if itinerary_result %}
+            {% if not itinerary_result.valid %}
+                <div class="result-box result-error">
+                    <p>{{ itinerary_result.error }}</p>
+                </div>
+            {% else %}
+                <div class="result-box result-info">
+                    <div class="result-header">
+                        <strong>Análise do Roteiro</strong>
+                        <span class="metric-tag">Total de comparações na Hash: {{ itinerary_result.total_hash_comparisons }}</span>
+                    </div>
+
+                    {% if itinerary_result.covered %}
+                        <p><strong>Destinos cobertos ({{ itinerary_result.covered | length }}):</strong>
+                            {% for item in itinerary_result.covered %}
+                                <span class="country-chip">{{ item.code }} · {{ item.country }} ({{ item.region }})</span>
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    {% if itinerary_result.uncovered %}
+                        <p class="text-danger"><strong>Sem cobertura:</strong> {{ itinerary_result.uncovered | join(', ') }}</p>
+                    {% endif %}
+
+                    {% if itinerary_result.recommended_package %}
+                        <div class="package-recommendation">
+                            <span class="pkg-label">Pacote Recomendado:</span>
+                            <h4>#{{ itinerary_result.recommended_package.code }} — {{ itinerary_result.recommended_package.name }}</h4>
+                            <p>Franquia: <strong>{{ itinerary_result.recommended_package.data }}</strong> · Validade: <strong>{{ itinerary_result.recommended_package.validity }}</strong></p>
+                        </div>
+                    {% else %}
+                        <p class="text-danger">Nenhum país do roteiro possui cobertura ativa para recomendar pacote.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </section>
+</div>
+
+<!-- Preview do Mapa-Múndi (Leaflet.js) -->
+<section class="card">
+    <div class="card-title-row">
+        <h2>Preview do Mapa-Múndi de Cobertura</h2>
+        <span class="text-muted">Clique em um marcador para inspecionar o país</span>
+    </div>
+    <div id="map-preview" class="map-container"></div>
+</section>
+
+<!-- Listagem de Países Atendidos -->
+<section class="card">
+    <div class="card-title-row">
+        <h2>Países Atendidos ({{ countries | length }})</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">Gerenciar no Painel Admin</a>
+    </div>
+
+    {% if countries %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>País</th>
+                        <th>Região</th>
+                        <th>Operadora Parceira</th>
+                        <th>Tecnologia</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in countries %}
+                        <tr>
+                            <td><span class="code-pill">{{ c.code }}</span></td>
+                            <td><strong>{{ c.country }}</strong></td>
+                            <td>{{ c.region }}</td>
+                            <td>{{ c.provider }}</td>
+                            <td><span class="tech-badge">{{ c.tech }}</span></td>
+                            <td>
+                                <a href="{{ url_for('home.index', codigo=c.code) }}" class="link-action">Consultar Hash</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted">Nenhum país cadastrado no momento.</p>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.countriesData = {{ countries | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/map_preview.js') }}"></script>
+{% endblock %}

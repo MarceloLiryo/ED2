@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GlobalSIM - EDII{% endblock %}</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-content">
+            <a href="{{ url_for('home.index') }}" class="brand">
+                <span class="brand-badge">eSIM</span>
+                <strong>GlobalSIM</strong> <small>EDII</small>
+            </a>
+            <nav class="nav-links">
+                <a href="{{ url_for('home.index') }}" class="nav-link">Consulta & Cobertura</a>
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link nav-admin">Painel Admin (Tabela Hash)</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alerts">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>GlobalSIM — Estruturas de Dados II (UNEB) · Etapa 1: Tabela Hash & Aplicação Web</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

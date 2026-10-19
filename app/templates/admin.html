@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Admin - GlobalSIM{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Gerenciamento de Países & Tabela Hash</h1>
+        <p class="text-muted">Cadastre, altere ou remova países atendidos e observe o estado interno dos buckets em tempo real.</p>
+    </div>
+</div>
+
+<div class="grid-admin">
+    <!-- Formulário de Cadastro / Edição (POST/Redirect/Get) -->
+    <section class="card">
+        {% if editing_country %}
+            <h2>Alterar País: {{ editing_country.code }}</h2>
+            <form action="{{ url_for('admin.update_country', code=editing_country.code) }}" method="POST" class="stack-form">
+        {% else %}
+            <h2>Cadastrar Novo País</h2>
+            <form action="{{ url_for('admin.create_country') }}" method="POST" class="stack-form">
+        {% endif %}
+
+            <div class="form-group">
+                <label for="code-input">Código ISO (Chave da Tabela Hash)</label>
+                <input
+                    type="text"
+                    id="code-input"
+                    name="code"
+                    maxlength="3"
+                    placeholder="Ex: DE, AR, AU"
+                    value="{{ editing_country.code if editing_country else '' }}"
+                    class="input-field"
+                    {% if editing_country %}readonly{% endif %}
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="country-input">Nome do País</label>
+                <input
+                    type="text"
+                    id="country-input"
+                    name="country"
+                    placeholder="Ex: Alemanha"
+                    value="{{ editing_country.country if editing_country else '' }}"
+                    class="input-field"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="region-input">Região / Continente</label>
+                <input
+                    type="text"
+                    id="region-input"
+                    name="region"
+                    placeholder="Ex: Europa, América, Ásia"
+                    value="{{ editing_country.region if editing_country else '' }}"
+                    class="input-field"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="provider-input">Operadora Local</label>
+                <input
+                    type="text"
+                    id="provider-input"
+                    name="provider"
+                    placeholder="Ex: Deutsche Telekom"
+                    value="{{ editing_country.provider if editing_country else '' }}"
+                    class="input-field"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="tech-input">Tecnologia</label>
+                <select id="tech-input" name="tech" class="input-field" required>
+                    {% set current_tech = editing_country.tech if editing_country else '5G' %}
+                    <option value="5G" {% if current_tech == '5G' %}selected{% endif %}>5G</option>
+                    <option value="4G LTE" {% if current_tech == '4G LTE' %}selected{% endif %}>4G LTE</option>
+                    <option value="4G/5G DSS" {% if current_tech == '4G/5G DSS' %}selected{% endif %}>4G/5G DSS</option>
+                    <option value="3G" {% if current_tech == '3G' %}selected{% endif %}>3G</option>
+                </select>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label for="lat-input">Latitude</label>
+                    <input
+                        type="number"
+                        step="any"
+                        id="lat-input"
+                        name="lat"
+                        placeholder="-14.235"
+                        value="{{ editing_country.coordinates[0] if editing_country and editing_country.coordinates else '0.0' }}"
+                        class="input-field"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="lng-input">Longitude</label>
+                    <input
+                        type="number"
+                        step="any"
+                        id="lng-input"
+                        name="lng"
+                        placeholder="-51.925"
+                        value="{{ editing_country.coordinates[1] if editing_country and editing_country.coordinates else '0.0' }}"
+                        class="input-field"
+                        required
+                    >
+                </div>
+            </div>
+            <small class="text-muted">Dica: Você pode clicar no mapa abaixo para preencher Latitude e Longitude automaticamente.</small>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {{ 'Salvar Alterações' if editing_country else 'Cadastrar na Tabela Hash' }}
+                </button>
+                {% if editing_country %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">Cancelar Edição</a>
+                {% endif %}
+            </div>
+        </form>
+    </section>
+
+    <!-- Listagem e Ações CRUD -->
+    <section class="card">
+        <h2>Países Registrados ({{ countries | length }})</h2>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Chave</th>
+                        <th>País</th>
+                        <th>Região</th>
+                        <th>Operadora</th>
+                        <th>Tec.</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in countries %}
+                        <tr>
+                            <td><span class="code-pill">{{ c.code }}</span></td>
+                            <td><strong>{{ c.country }}</strong></td>
+                            <td>{{ c.region }}</td>
+                            <td>{{ c.provider }}</td>
+                            <td><span class="tech-badge">{{ c.tech }}</span></td>
+                            <td class="actions-cell">
+                                <a href="{{ url_for('admin.dashboard', editar=c.code) }}" class="btn-sm btn-edit">Editar</a>
+                                <form
+                                    action="{{ url_for('admin.delete_country', code=c.code) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Remover {{ c.country }} ({{ c.code }}) da Tabela Hash?');"
+                                    style="display:inline;"
+                                >
+                                    <button type="submit" class="btn-sm btn-delete">Remover</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Instrumentação da Tabela Hash (Requisito da Etapa 1) -->
+<section class="card">
+    <div class="card-title-row">
+        <h2>Instrumentação da Tabela Hash (Encadeamento Externo)</h2>
+        <span class="badge-diff">Análise de Estrutura</span>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <span class="metric-title">Capacidade (M)</span>
+            <strong class="metric-number">{{ metrics.capacity }} buckets</strong>
+        </div>
+        <div class="metric-card">
+            <span class="metric-title">Registros (N)</span>
+            <strong class="metric-number">{{ metrics.size }} países</strong>
+        </div>
+        <div class="metric-card">
+            <span class="metric-title">Fator de Carga (α = N/M)</span>
+            <strong class="metric-number">{{ metrics.load_factor }}</strong>
+        </div>
+        <div class="metric-card">
+            <span class="metric-title">Buckets Ocupados</span>
+            <strong class="metric-number">{{ metrics.used_buckets }} / {{ metrics.capacity }}</strong>
+        </div>
+        <div class="metric-card">
+            <span class="metric-title">Colisões Ativas</span>
+            <strong class="metric-number">{{ metrics.active_collisions }}</strong>
+        </div>
+        <div class="metric-card">
+            <span class="metric-title">Comparações (Última Busca)</span>
+            <strong class="metric-number">{{ metrics.last_search_comparisons }}</strong>
+        </div>
+    </div>
+
+    <h3>Distribuição dos Buckets em Memória</h3>
+    <div class="buckets-container">
+        {% for b in metrics.buckets %}
+            <div class="bucket-row {% if b.has_collision %}bucket-collision{% elif b.count == 0 %}bucket-empty{% endif %}">
+                <div class="bucket-index">Bucket [{{ b.index }}]</div>
+                <div class="bucket-chain">
+                    {% if b.count == 0 %}
+                        <span class="null-node">None (Vazio)</span>
+                    {% else %}
+                        {% for item in b['items'] %}
+                            <div class="hash-node">
+                                <strong>{{ item.code }}</strong>
+                                <span>{{ item.country }}</span>
+                            </div>
+                            {% if not loop.last %}
+                                <span class="chain-arrow">→</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="bucket-status">
+                    {% if b.has_collision %}
+                        <span class="collision-tag">Colisão ({{ b.count }} nós)</span>
+                    {% elif b.count == 1 %}
+                        <span class="ok-tag">1 nó</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Preview do Mapa no Admin para seleção rápida de coordenadas -->
+<section class="card">
+    <div class="card-title-row">
+        <h2>Mapa Auxiliar de Coordenadas</h2>
+        <span class="text-muted">Clique em qualquer ponto do mapa para preencher Latitude e Longitude no formulário</span>
+    </div>
+    <div id="map-preview" class="map-container"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.countriesData = {{ countries | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/map_preview.js') }}"></script>
+{% endblock %}
