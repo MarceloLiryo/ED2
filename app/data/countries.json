@@ -6,7 +6,7 @@
         "provider": "Vivo / Claro Global",
         "tech": "5G",
         "coordinates": [
-            -30.0,
+            -14.235,
             -51.9253
         ]
     },
@@ -47,11 +47,11 @@
         "code": "FR",
         "country": "França",
         "region": "Europa",
-        "provider": "Orange FRRRR",
+        "provider": "Orange FR",
         "tech": "5G",
         "coordinates": [
             46.2276,
-            -30.0
+            2.2137
         ]
     },
     {
