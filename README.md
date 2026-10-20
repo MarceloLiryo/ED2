@@ -5,7 +5,7 @@ Projeto prático da disciplina **Estruturas de Dados II** (Sistemas de Informaç
 ---
 
 ## Integrantes da Equipe
-- *(Adicione os nomes dos integrantes aqui)*
+- Marcelo Líryo, Janderson Blanki
 
 ---
 

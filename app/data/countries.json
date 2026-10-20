@@ -5,47 +5,10 @@
         "region": "América",
         "provider": "Vivo / Claro Global",
         "tech": "5G",
-        "coordinates": [-14.235, -51.9253]
-    },
-    {
-        "code": "PT",
-        "country": "Portugal",
-        "region": "Europa",
-        "provider": "MEO PT",
-        "tech": "5G",
-        "coordinates": [39.3999, -8.2245]
-    },
-    {
-        "code": "ES",
-        "country": "Espanha",
-        "region": "Europa",
-        "provider": "Movistar ES",
-        "tech": "5G",
-        "coordinates": [40.4637, -3.7492]
-    },
-    {
-        "code": "FR",
-        "country": "França",
-        "region": "Europa",
-        "provider": "Orange FR",
-        "tech": "5G",
-        "coordinates": [46.2276, 2.2137]
-    },
-    {
-        "code": "IT",
-        "country": "Itália",
-        "region": "Europa",
-        "provider": "TIM Itália",
-        "tech": "5G",
-        "coordinates": [41.8719, 12.5674]
-    },
-    {
-        "code": "US",
-        "country": "Estados Unidos",
-        "region": "América",
-        "provider": "T-Mobile US",
-        "tech": "5G",
-        "coordinates": [37.0902, -95.7129]
+        "coordinates": [
+            -30.0,
+            -51.9253
+        ]
     },
     {
         "code": "CA",
@@ -53,7 +16,54 @@
         "region": "América",
         "provider": "Rogers CA",
         "tech": "5G",
-        "coordinates": [56.1304, -106.3468]
+        "coordinates": [
+            56.1304,
+            -106.3468
+        ]
+    },
+    {
+        "code": "ES",
+        "country": "Espanha",
+        "region": "Europa",
+        "provider": "Movistar ES",
+        "tech": "5G",
+        "coordinates": [
+            40.4637,
+            -3.7492
+        ]
+    },
+    {
+        "code": "US",
+        "country": "Estados Unidos",
+        "region": "América",
+        "provider": "T-Mobile US",
+        "tech": "5G",
+        "coordinates": [
+            37.0902,
+            -95.7129
+        ]
+    },
+    {
+        "code": "FR",
+        "country": "França",
+        "region": "Europa",
+        "provider": "Orange FRRRR",
+        "tech": "5G",
+        "coordinates": [
+            46.2276,
+            -30.0
+        ]
+    },
+    {
+        "code": "IT",
+        "country": "Itália",
+        "region": "Europa",
+        "provider": "TIM Itália",
+        "tech": "5G",
+        "coordinates": [
+            41.8719,
+            12.5674
+        ]
     },
     {
         "code": "JP",
@@ -61,6 +71,20 @@
         "region": "Ásia",
         "provider": "NTT Docomo",
         "tech": "5G",
-        "coordinates": [36.2048, 138.2529]
+        "coordinates": [
+            36.2048,
+            138.2529
+        ]
+    },
+    {
+        "code": "PT",
+        "country": "Portugal",
+        "region": "Europa",
+        "provider": "MEO PT",
+        "tech": "5G",
+        "coordinates": [
+            39.3999,
+            -8.2245
+        ]
     }
 ]

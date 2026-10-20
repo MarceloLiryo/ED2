@@ -9,7 +9,7 @@ class CountryRecord(TypedDict):
     region: str
     provider: str
     tech: str
-    coordinates: list[float]
+    coordinates: list[float] #preferi não usar tupla aqui viu
 
 
 class CountryModel:
